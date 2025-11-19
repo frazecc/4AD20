@@ -6,17 +6,17 @@ const CLIENT_ID = '761572343886-0vltom1r841bigibhv7u0u9q7en99hph.apps.googleuser
 // Chiave API (da Google Cloud Console)
 const API_KEY = 'AIzaSyBPO2PX97SpA_2XqXjv-iR_Hjxr-RY7v7I'; 
 
-// ID della cartella di Google Drive (da https://drive.google.com/drive/folders/1mIa9ygyRsmvQyu_ciaIBBL41rmX4j9NI?usp=sharing)
+// ID della cartella di Google Drive (1mIa9ygyRsmvQyu_ciaIBBL41rmX4j9NI)
 const FOLDER_ID = '1mIa9ygyRsmvQyu_ciaIBBL41rmX4j9NI'; 
 // **********************************************
 
 // Ambito: Permette solo la lettura dei metadati di Drive
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly'; 
 
-// Funzione chiamata quando la libreria Google è stata caricata
-function gapiLoaded() {
+// Funzione chiamata dal caricamento della libreria GAPI.
+window.gapiLoaded = function () {
     gapi.load('client', initializeGapiClient);
-}
+};
 
 // Inizializza il client API di Google
 async function initializeGapiClient() {
@@ -24,7 +24,6 @@ async function initializeGapiClient() {
         apiKey: API_KEY,
         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
     });
-    // Dopo l'inizializzazione, l'API è pronta.
     
     // Tentiamo di eseguire la query immediatamente
     listFiles(); 
