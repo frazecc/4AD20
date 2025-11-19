@@ -15,24 +15,35 @@ const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 
 // Funzione chiamata dal caricamento della libreria GAPI.
 window.gapiLoaded = function () {
+    console.log('START: GAPI Client Library caricata. Carico il modulo "client".');
     gapi.load('client', initializeGapiClient);
 };
 
 // Inizializza il client API di Google
 async function initializeGapiClient() {
-    await gapi.client.init({
-        apiKey: API_KEY,
-        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-    });
-    
-    // Tentiamo di eseguire la query immediatamente
-    listFiles(); 
+    console.log('PASSAGGIO 1: Inizializzazione GAPI avviata con API Key.'); // <-- MESSAGGIO AGGIUNTO PER DEBUG
+    try {
+        await gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        });
+        
+        console.log('PASSAGGIO 2: Inizializzazione GAPI completata con successo. Avvio listFiles().'); // <-- MESSAGGIO AGGIUNTO PER DEBUG
+        listFiles(); 
+
+    } catch (err) {
+        // Se c'è un errore qui, è un problema di API Key, ID Client o Scopes.
+        console.error('ERRORE CRITICO DI INIZIALIZZAZIONE:', err); 
+        document.getElementById('file-list-container').innerHTML = 
+             '<p style="color: red;">ERRORE FATALE: Impossibile inizializzare l\'API. Controlla la Console per i dettagli (Problema di Chiave o ID Client).</p>';
+    }
 }
 
 /**
  * Richiede l'elenco dei PDF dalla cartella Drive specificata.
  */
 async function listFiles() {
+    console.log('PASSAGGIO 3: Esecuzione query API Drive in corso...'); // <-- MESSAGGIO AGGIUNTO PER DEBUG
     try {
         const response = await gapi.client.drive.files.list({
             // Filtra per file all'interno della cartella e solo PDF
@@ -41,13 +52,14 @@ async function listFiles() {
             fields: 'files(id, name)', // Chiediamo solo l'ID e il nome
         });
 
+        console.log('PASSAGGIO 4: Dati ricevuti! Numero di file:', response.result.files.length); // <-- MESSAGGIO AGGIUNTO PER DEBUG
         const files = response.result.files;
         displayFiles(files);
 
     } catch (err) {
         document.getElementById('file-list-container').innerHTML = 
-            '<p style="color: red;">Errore nel caricamento dei file. Controlla la console del browser (tasto F12) per i dettagli o verifica che la cartella sia pubblica e che le chiavi siano corrette.</p>';
-        console.error('Errore API Drive:', err);
+            '<p style="color: red;">ERRORE LISTA FILE: Fallimento nella richiesta dei file (Controllo Permessi Drive e ID Cartella).</p>';
+        console.error('ERRORE API DRIVE LIST FILES:', err);
     }
 }
 
@@ -59,10 +71,11 @@ function displayFiles(files) {
     listContainer.innerHTML = ''; // Pulisce il messaggio "Caricamento file..."
 
     if (!files || files.length === 0) {
-        listContainer.innerHTML = '<p>Nessun PDF trovato nella cartella specificata.</p>';
+        listContainer.innerHTML = '<p>Nessun PDF trovato nella cartella specificata (o i file non sono pubblici).</p>';
         return;
     }
 
+    // ... (il resto della funzione rimane invariato)
     const form = document.createElement('form');
     let htmlContent = '<ul>';
 
@@ -88,41 +101,4 @@ function displayFiles(files) {
 let selectedFileId = null;
 
 /**
- * Gestisce la selezione della casella di spunta (solo un file alla volta).
- */
-function selectFile(checkbox) {
-    // Deseleziona tutti gli altri checkbox
-    const checkboxes = document.getElementsByName('pdf_file');
-    checkboxes.forEach((cb) => {
-        if (cb !== checkbox) {
-            cb.checked = false;
-        }
-    });
-
-    if (checkbox.checked) {
-        selectedFileId = checkbox.value;
-    } else {
-        selectedFileId = null;
-    }
-}
-
-/**
- * Visualizza il PDF selezionato in un iframe.
- */
-function viewSelectedPdf() {
-    const viewerContainer = document.getElementById('pdf-viewer-container');
-    
-    if (!selectedFileId) {
-        viewerContainer.innerHTML = '<p style="color: orange;">Seleziona prima un file dall\'elenco.</p>';
-        return;
-    }
-
-    // URL per incorporare il visualizzatore PDF di Google Drive
-    const pdfUrl = `https://drive.google.com/file/d/${selectedFileId}/preview`;
-
-    viewerContainer.innerHTML = `
-        <h2>Anteprima PDF</h2>
-        <iframe src="${pdfUrl}" width="100%" height="600px" style="border: none;"></iframe>
-        <a href="https://drive.google.com/file/d/${selectedFileId}/view?usp=sharing" target="_blank">Apri in una nuova scheda</a>
-    `;
-}
+ * Gestisce la selezione della casella di spunta (solo
