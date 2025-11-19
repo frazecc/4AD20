@@ -1,8 +1,14 @@
-// ** SOSTITUISCI QUESTI VALORI **
-const CLIENT_ID = 'IL_TUO_CLIENT_ID_OTTENUTO_IN_FASE_1';
-const API_KEY = 'LA_TUA_CHIAVE_API_OTTENUTA_IN_FASE_1'; 
-const FOLDER_ID = 'L_ID_DELLA_CARTELLA_DI_DRIVE_OTTENUTO_IN_FASE_1'; 
-// ****************************
+// ** VALORI CONFIGURATI PER IL PROGETTO "4AD20" **
+
+// ID Client (da Google Cloud Console)
+const CLIENT_ID = '761572343886-0vltom1r841bigibhv7u0u9q7en99hph.apps.googleusercontent.com';
+
+// Chiave API (da Google Cloud Console)
+const API_KEY = 'AIzaSyBPO2PX97SpA_2XqXjv-iR_Hjxr-RY7v7I'; 
+
+// ID della cartella di Google Drive (da https://drive.google.com/drive/folders/1mIa9ygyRsmvQyu_ciaIBBL41rmX4j9NI?usp=sharing)
+const FOLDER_ID = '1mIa9ygyRsmvQyu_ciaIBBL41rmX4j9NI'; 
+// **********************************************
 
 // Ambito: Permette solo la lettura dei metadati di Drive
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly'; 
@@ -18,9 +24,7 @@ async function initializeGapiClient() {
         apiKey: API_KEY,
         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
     });
-    // Dopo l'inizializzazione, carica l'interfaccia utente (UI) per l'autenticazione
-    // (Non gestiamo la login esplicita perché i file sono pubblici,
-    // ma l'API ha bisogno di un "caricamento")
+    // Dopo l'inizializzazione, l'API è pronta.
     
     // Tentiamo di eseguire la query immediatamente
     listFiles(); 
@@ -43,7 +47,7 @@ async function listFiles() {
 
     } catch (err) {
         document.getElementById('file-list-container').innerHTML = 
-            '<p style="color: red;">Errore nel caricamento dei file. Controlla la console per i dettagli o verifica che la cartella sia pubblica.</p>';
+            '<p style="color: red;">Errore nel caricamento dei file. Controlla la console del browser (tasto F12) per i dettagli o verifica che la cartella sia pubblica e che le chiavi siano corrette.</p>';
         console.error('Errore API Drive:', err);
     }
 }
@@ -120,6 +124,6 @@ function viewSelectedPdf() {
     viewerContainer.innerHTML = `
         <h2>Anteprima PDF</h2>
         <iframe src="${pdfUrl}" width="100%" height="600px" style="border: none;"></iframe>
-        <a href="${pdfUrl}" target="_blank">Apri in una nuova scheda</a>
+        <a href="https://drive.google.com/file/d/${selectedFileId}/view?usp=sharing" target="_blank">Apri in una nuova scheda</a>
     `;
 }
