@@ -101,4 +101,41 @@ function displayFiles(files) {
 let selectedFileId = null;
 
 /**
- * Gestisce la selezione della casella di spunta (solo
+ * Gestisce la selezione della casella di spunta (solo un file alla volta).
+ */
+function selectFile(checkbox) {
+    // Deseleziona tutti gli altri checkbox
+    const checkboxes = document.getElementsByName('pdf_file');
+    checkboxes.forEach((cb) => {
+        if (cb !== checkbox) {
+            cb.checked = false;
+        }
+    });
+
+    if (checkbox.checked) {
+        selectedFileId = checkbox.value;
+    } else {
+        selectedFileId = null;
+    }
+}
+
+/**
+ * Visualizza il PDF selezionato in un iframe.
+ */
+function viewSelectedPdf() {
+    const viewerContainer = document.getElementById('pdf-viewer-container');
+    
+    if (!selectedFileId) {
+        viewerContainer.innerHTML = '<p style="color: orange;">Seleziona prima un file dall\'elenco.</p>';
+        return;
+    }
+
+    // URL per incorporare il visualizzatore PDF di Google Drive
+    const pdfUrl = `https://drive.google.com/file/d/${selectedFileId}/preview`;
+
+    viewerContainer.innerHTML = `
+        <h2>Anteprima PDF</h2>
+        <iframe src="${pdfUrl}" width="100%" height="600px" style="border: none;"></iframe>
+        <a href="https://drive.google.com/file/d/${selectedFileId}/view?usp=sharing" target="_blank">Apri in una nuova scheda</a>
+    `;
+}
